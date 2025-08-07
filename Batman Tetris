@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Batman Tetris</title>
+  <style>
+    body { background: #18132b; color: #fff; display: flex; flex-direction:column; align-items:center; }
+    h2 { font-family: sans-serif; }
+    canvas { background: #222; margin-top: 1rem; border: 2px solid #555; }
+  </style>
+</head>
+<body>
+  <h2>Batman Tetris</h2>
+  <canvas id="game" width="200" height="400"></canvas>
+  <script>
+    // Tetris grid size
+    const COLS = 10, ROWS = 20, SIZE = 20;
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    // Batman "B" shape (just for fun, not classic tetromino)
+    const BATMAN = [
+      [0,1,0],
+      [1,1,1],
+      [1,1,1],
+      [0,1,0],
+    ];
+    let grid = Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    let piece = {x:3, y:0, shape:BATMAN};
+    let gameOver = false, dropInterval = 400, lastDrop = Date.now();
+
+    function drawBlock(x, y) {
+      ctx.fillStyle = "#ffe100";
+      ctx.fillRect(x*SIZE, y*SIZE, SIZE-1, SIZE-1);
+      ctx.strokeStyle = "#222";
+      ctx.strokeRect(x*SIZE, y*SIZE, SIZE-1, SIZE-1);
+      // Draw a little batman ears
+      if (y === piece.y && [0,2].includes(x-piece.x)) {
+        ctx.fillStyle = "#222";
+        ctx.fillRect(x*SIZE+7, y*SIZE, 5, 5);
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // draw settled blocks
+      for (let r=0;r<ROWS;r++)
+        for (let c=0;c<COLS;c++)
+          if (grid[r][c]) drawBlock(c, r);
+      // draw active piece
+      for (let r=0;r<piece.shape.length;r++)
+        for (let c=0;c<piece.shape[0].length;c++)
+          if (piece.shape[r][c]) drawBlock(piece.x+c, piece.y+r);
+    }
+
+    function collide(px,py,sh) {
+      for (let r=0;r<sh.length;r++)
+        for (let c=0;c<sh[0].length;c++)
+          if (sh[r][c] && (grid[py+r] && grid[py+r][px+c] || px+c<0 || px+c>=COLS || py+r>=ROWS)) return true;
+      return false;
+    }
+
+    function merge() {
+      for (let r=0;r<piece.shape.length;r++)
+        for (let c=0;c<piece.shape[0].length;c++)
+          if (piece.shape[r][c]) grid[piece.y+r][piece.x+c]=1;
+    }
+
+    function nextPiece() {
+      piece = {x:Math.floor(Math.random()*7), y:0, shape:BATMAN};
+      if (collide(piece.x,piece.y,piece.shape)) gameOver = true;
+    }
+
+    function rotate(sh) {
+      return sh[0].map((_,i)=>sh.map(row=>row[i]).reverse());
+    }
+
+    function clearLines() {
+      grid = grid.filter(row=>row.some(cell=>!cell));
+      while(grid.length<ROWS) grid.unshift(Array(COLS).fill(0));
+    }
+
+    function update() {
+      if (gameOver) return;
+      if (Date.now()-lastDrop>dropInterval) {
+        if (!collide(piece.x,piece.y+1,piece.shape)) piece.y++;
+        else {
+          merge(); clearLines(); nextPiece();
+        }
+        lastDrop = Date.now();
+      }
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    document.addEventListener('keydown',e=>{
+      if (gameOver) return;
+      if (e.key==='ArrowLeft' && !collide(piece.x-1,piece.y,piece.shape)) piece.x--;
+      if (e.key==='ArrowRight' && !collide(piece.x+1,piece.y,piece.shape)) piece.x++;
+      if (e.key==='ArrowDown' && !collide(piece.x,piece.y+1,piece.shape)) piece.y++;
+      if (e.key==='ArrowUp') {
+        let r=rotate(piece.shape);
+        if (!collide(piece.x,piece.y,r)) piece.shape=r;
+      }
+      draw();
+    });
+
+    nextPiece(); update();
+  </script>
+</body>
+</html>
