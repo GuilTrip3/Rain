@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Krokr · Crafting Code Excellence</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet"/>
+
+  <!-- Lottie Web Component -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <style>
+    /* RESET & VARIABLES */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg: #121212;
+      --fg: #e0e0e0;
+      --accent: #BB86FC;
+      --accent-hover: #9a57d1;
+      --muted: #888;
+      --transition: 0.4s ease;
+      --perspective: 1000px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height:1.6;
+    }
+    a { color: var(--accent); transition: color var(--transition); }
+    a:hover { color: var(--accent-hover); }
+
+    /* LAYOUT */
+    header {
+      position: fixed; top:0; width:100%;
+      background: rgba(18,18,18,0.85);
+      backdrop-filter: blur(6px);
+      padding: 1rem 2rem;
+      display:flex; justify-content:space-between; align-items:center;
+      z-index:1000;
+    }
+    .logo { font-size: 1.5rem; font-weight:800; color: var(--accent); }
+    nav ul { list-style:none; display:flex; gap:1.5rem; }
+    nav li a { font-weight:500; }
+    .menu-toggle { display:none; cursor:pointer; font-size:1.5rem; }
+
+    main { padding-top:80px; }
+
+    section {
+      position:relative;
+      padding: 4rem 2rem;
+      max-width:1200px; margin:0 auto;
+      opacity:0; transform: translateY(40px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+    section.reveal { opacity:1; transform: translateY(0); }
+
+    h2 { font-size:2rem; margin-bottom:1rem; font-weight:600; }
+
+    /* HERO with VIDEO BG */
+    .hero {
+      position: relative;
+      height: 80vh;
+      display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
+      color:#fff; text-shadow:0 4px 12px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .hero video {
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      filter: brightness(0.6);
+      z-index:-1;
+    }
+    .hero h1 { font-size:3rem; margin-bottom:0.5rem; }
+    .hero p { font-size:1.2rem; margin-bottom:2rem; max-width:500px; }
+    .btn-primary {
+      background:var(--accent); color:var(--bg);
+      padding:0.8rem 1.6rem; border:none; border-radius:4px;
+      font-weight:600; cursor:pointer; transition: background var(--transition), transform var(--transition);
+      perspective: var(--perspective);
+    }
+    .btn-primary:hover { background:var(--accent-hover); transform: translateY(-3px) rotateX(5deg); }
+
+    /* SVG DIVIDER */
+    .divider {
+      position:absolute; left:0; width:100%; overflow:hidden;
+      line-height:0;
+    }
+    .divider svg { position:relative; display:block; width:calc(100% + 1.3px); height:100px; }
+
+    /* SERVICES with 3D cards */
+    .features {
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+      gap:2rem;
+      perspective: var(--perspective);
+    }
+    .feature {
+      background: #1E1E1E; border-radius:8px; padding:2rem;
+      box-shadow:0 4px 16px rgba(0,0,0,0.4);
+      transition: transform var(--transition), box-shadow var(--transition);
+      transform-style: preserve-3d;
+    }
+    .feature:hover {
+      transform: rotateY(10deg) rotateX(5deg);
+      box-shadow:0 8px 24px rgba(0,0,0,0.6);
+    }
+    .feature img { width:100%; border-radius:4px; margin-bottom:1rem; }
+
+    /* TESTIMONIALS */
+    .testimonials {
+      background: #1E1E1E;
+      padding:4rem 2rem;
+      color:#ddd;
+    }
+    .testimonials h2 { color:var(--accent); }
+    .slider {
+      display:flex; gap:2rem; overflow-x:auto;
+      scroll-snap-type: x mandatory; padding-bottom:1rem;
+      perspective: var(--perspective);
+    }
+    .slide {
+      flex:0 0 300px; background:#2a2a2a; border-radius:8px;
+      padding:2rem; scroll-snap-align: start;
+      box-shadow:0 4px 12px rgba(0,0,0,0.5);
+      transition: transform var(--transition);
+    }
+    .slide:hover { transform: rotateY(8deg); }
+    .slide p { font-style:italic; margin-bottom:1rem; }
+    .slide h4 { text-align:right; font-weight:600; }
+
+    /* PORTFOLIO with 3D tilt */
+    .portfolio {
+      display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem;
+      perspective: var(--perspective);
+    }
+    .project {
+      position:relative; overflow:hidden; border-radius:8px;
+      transition: transform var(--transition);
+      transform-style: preserve-3d;
+    }
+    .project:hover { transform: rotateY(-10deg) scale(1.03); }
+    .project img { display:block; transition: transform var(--transition); }
+    .project:hover img { transform: scale(1.1); }
+    .project-info {
+      position:absolute; bottom:0; left:0;
+      background:rgba(0,0,0,0.7); width:100%; padding:1rem;
+      color:#fff;
+    }
+
+    /* LOTTIE in About */
+    #about { text-align:center; }
+    #about lottie-player { margin: 2rem auto; display:block; width:300px; height:300px; }
+
+    /* CTA BOX with Lottie */
+    .cta {
+      background:var(--accent); text-align:center;
+      padding:3rem 2rem; border-radius:8px; color:var(--bg);
+      transition: transform var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .cta:hover { transform: translateY(-4px); }
+    .cta h2 { margin-bottom:1rem; }
+    .cta lottie-player {
+      position:absolute; top:-20px; right:-20px;
+      width:200px; height:200px; opacity:0.3;
+    }
+
+    /* CONTACT */
+    form {
+      display:grid; gap:1rem;
+    }
+    form input, form textarea {
+      padding:0.8rem; border:1px solid #333; border-radius:4px;
+      background:#1E1E1E; color:#eee;
+    }
+    form input::placeholder, form textarea::placeholder {
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align:center; padding:2rem 0; color:var(--muted);
+    }
+
+    /* RESPONSIVE MENU */
+    @media(max-width:768px) {
+      .menu-toggle { display:block; }
+      nav ul {
+        position:fixed; top:80px; right:-100%;
+        flex-direction:column; background:#121212;
+        width:220px; padding:2rem; gap:1.5rem;
+        transition:right var(--transition);
+      }
+      nav.open ul { right:0; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Krokr</div>
+    <div class="menu-toggle" id="menuToggle">☰</div>
+    <nav id="navMenu">
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO with VIDEO -->
+    <section class="hero" id="home">
+      <video autoplay muted loop>
+        <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4">
+      </video>
+      <h1>We Build Digital Dreams</h1>
+      <p>At Krokr, we craft scalable, high-performance applications tailored to your vision.</p>
+      <button class="btn-primary" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+        Our Services
+      </button>
+    </section>
+
+    <!-- DIVIDER -->
+    <div class="divider"><svg viewBox="0 0 1200 100"><path fill="#121212" d="M0,0 V50 Q600,150 1200,50 V0z"/></svg></div>
+
+    <!-- SERVICES -->
+    <section id="services">
+      <h2>What We Do</h2>
+      <div class="features">
+        <div class="feature">
+          <img src="https://source.unsplash.com/400x300/?mobile,app" alt="Mobile"/>
+          <h3>Mobile &amp; Desktop Apps</h3>
+          <p>Native iOS/Android &amp; cross-platform Electron solutions.</p>
+        </div>
+        <div class="feature">
+          <img src="https://source.unsplash.com/400x300/?web,code" alt="Web"/>
+          <h3>Web Development</h3>
+          <p>React, Vue &amp; server-rendered apps with SEO in mind.</p>
+        </div>
+        <div class="feature">
+          <img src="https://source.unsplash.com/400x300/?cloud,infra" alt="Cloud"/>
+          <h3>Cloud &amp; DevOps</h3>
+          <p>CI/CD pipelines, Kubernetes orchestration, serverless.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials" class="testimonials">
+      <h2>What Our Clients Say</h2>
+      <div class="slider">
+        <div class="slide">
+          <p>"Krokr revolutionized our platform. Uptime hit 99.99% and performance soared."</p>
+          <h4>– Morgan Lee, CTO @ FinFlux</h4>
+        </div>
+        <div class="slide">
+          <p>"Blazing-fast dev cycles, superb code quality, and all within budget."</p>
+          <h4>– Alex Rami, CEO @ ShopEase</h4>
+        </div>
+        <div class="slide">
+          <p>"Their DevOps expertise saved us countless hours—truly game-changing."</p>
+          <h4>– Priya Singh, Head of Eng @ DataSpark</h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section id="portfolio">
+      <h2>Our Portfolio</h2>
+      <div class="portfolio">
+        <div class="project">
+          <img src="https://source.unsplash.com/600x400/?startup,office" alt="Project A"/>
+          <div class="project-info">
+            <h4>Project A</h4>
+            <p>End-to-end fintech platform handling millions of transactions daily.</p>
+          </div>
+        </div>
+        <div class="project">
+          <img src="https://source.unsplash.com/600x400/?ecommerce,ui" alt="Project B"/>
+          <div class="project-info">
+            <h4>Project B</h4>
+            <p>Scalable e-commerce solution boosting client sales by 45%.</p>
+          </div>
+        </div>
+        <div class="project">
+          <img src="https://source.unsplash.com/600x400/?analytics,dashboard" alt="Project C"/>
+          <div class="project-info">
+            <h4>Project C</h4>
+            <p>Real-time analytics dashboard empowering data-driven decisions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT with Lottie -->
+    <section id="about">
+      <h2>About Krokr</h2>
+      <lottie-player 
+        src="https://assets10.lottiefiles.com/packages/lf20_touohxv0.json"  
+        background="transparent"  
+        speed="1"  
+        loop  
+        autoplay>
+      </lottie-player>
+      <p>Founded by industry veterans, Krokr combines deep technical expertise with agile methodologies to deliver results-driven software. We stay ahead of tech trends so you don’t have to.</p>
+    </section>
+
+    <!-- CTA with Lottie -->
+    <section class="cta">
+      <lottie-player 
+        src="https://assets1.lottiefiles.com/packages/lf20_u4yrau.json"  
+        background="transparent"  
+        speed="0.7"  
+        loop  
+        autoplay>
+      </lottie-player>
+      <h2>Ready to Start Your Project?</h2>
+      <p>Let’s collaborate and build something amazing together.</p>
+      <button class="btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+        Get in Touch
+      </button>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <h2>Contact Us</h2>
+      <form onsubmit="alert('Thanks! We’ll reach out soon.'); return false;">
+        <input type="text" placeholder="Name" required/>
+        <input type="email" placeholder="Email" required/>
+        <textarea rows="4" placeholder="Message" required></textarea>
+        <button class="btn-primary" type="submit">Send Message</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 Krokr · <a href="#">Privacy</a> · <a href="#">Terms</a>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Mobile Menu Toggle
+    document.getElementById('menuToggle').onclick = () => {
+      document.getElementById('navMenu').classList.toggle('open');
+    };
+
+    // Scroll-Reveal
+    const sections = document.querySelectorAll('section');
+    const obs = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('reveal');
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    sections.forEach(s => obs.observe(s));
+  </script>
+</body>
+</html>
